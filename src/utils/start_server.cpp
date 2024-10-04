@@ -1,24 +1,56 @@
 #include <iostream>
+#include <netdb.h>
 #include <netinet/in.h>
+#include <unistd.h>
+#include <sys/wait.h>
 #include "utils.h"
-#include "../globals/types.h"
 #include "../globals/consts.h"
 
-int start_tcp_server(const int &port, AddrFuncStruct &addr, int max_connections) {
-	int server_socket;
+void sigchld_handler(int s) {
+	int saved_errno = errno;
+	while (waitpid(-1, NULL, WNOHANG) > 0);
+	errno = saved_errno;
+}
 
-	server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (server_socket == 0) return ERROR_SOCKET;
+int create_server(int& sockfd, struct addrinfo* servinfo, int backlog) {
+	struct addrinfo *p;
+	struct sigaction sa;
+	int yes = 1;
 
-	if (bind(server_socket, (struct sockaddr*) &addr.addr, addr.length) < 0) {
+	for (p = servinfo; p != NULL; p = p->ai_next) {
+		if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
+			std::cerr << "[ERROR] server: socket" << std::endl;
+			continue;
+		}
+		if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {
+			std::cerr << "[ERROR] setsockopt" << std::endl;
+			return ERROR_SETSOCKOPT;
+		}
+		if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
+			close(sockfd);
+			std::cerr << "[ERROR] server: bind";
+			continue;
+		}
+		break;
+	}
+
+	if (p == NULL) {
+		std::cerr << "[ERROR] on binding" << std::endl;
 		return ERROR_BIND;
-	};
+	}
 
-	if (listen(server_socket, max_connections) < 0) {
+	if (listen(sockfd, backlog) == -1) {
+		std::cerr << "[ERROR] server: failed on listen" << std::endl;
 		return ERROR_LISTEN;
 	}
 
-	std::cout << "Server started on " << port << " port" << std::endl;
+	sa.sa_handler = sigchld_handler;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESTART;
+	if (sigaction(SIGCHLD, &sa, NULL) == -1) {
+		std::cerr << "[ERROR] sigaction" << std::endl;
+		exit(1);
+	}
 
-	return server_socket;
+	return NORMAL;
 }

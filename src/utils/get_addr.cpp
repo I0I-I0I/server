@@ -1,12 +1,22 @@
+#include <iostream>
+#include <cstring>
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include "../globals/types.h"
+#include <netdb.h>
 
-AddrFuncStruct get_addr(int port) {
-	struct sockaddr_in server_addr;
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = htons(port);
-	server_addr.sin_addr.s_addr = INADDR_ANY;
-	int addr_size = sizeof(server_addr);
-	return {server_addr, addr_size};
+struct addrinfo* get_addr(const char* port) {
+	struct addrinfo hints, *servinfo, *p;
+	int rv;
+
+	memset(&hints, 0, sizeof hints);
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_PASSIVE;
+
+	if ((rv = getaddrinfo(NULL, port, &hints, &servinfo)) != 0) {
+		std::cerr << "[ERROR] getaddrinfo: " << gai_strerror(rv) << std::endl;
+		exit(1);
+	}
+
+	return servinfo;
 }

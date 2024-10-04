@@ -1,16 +1,16 @@
-all: main server
+all: create server
 
-main:
-	mkdir db || echo ""
-	mkdir build || echo ""
+create:
+	@([ ! -d "build" ] && mkdir build) && echo "Dir 'build' was created" || echo -n ""
 
-server: server
-	g++\
+server:
+	@echo "Compiling..."
+	@g++\
 		src/server.cpp\
 		src/utils/get_addr.cpp\
 		src/utils/launch_server.cpp\
 		src/utils/start_server.cpp\
-		 -o build/server
+		-o build/server
 
 clean:
-	rm build/* || echo ""
+	@([ -d "build" ] && rm build/*) || echo "Dir 'build' doesn't exists"

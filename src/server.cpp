@@ -6,30 +6,26 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "globals/consts.h"
-#include "globals/types.h"
 #include "utils/utils.h"
 
 int main() {
-	AddrFuncStruct server_addr = get_addr(PORT);
+	struct addrinfo *servinfo;
+	int sockfd, status;
 
-	int server_socket = start_tcp_server(PORT, server_addr);
-	if (server_socket == ERROR_BIND) {
-		std::cerr << "Error on bind server" << std::endl;
-		return ERROR_BIND;
-	} else if (server_socket == ERROR_LISTEN) {
-		std::cerr << "Error on listen server" << std::endl;
-		return ERROR_LISTEN;
+	servinfo = get_addr(PORT);
+	if ((status = create_server(sockfd, servinfo, BACKLOG)) != 0) {
+		close(sockfd);
+		return status;
 	}
 
-	int launch_res;
-	while (true) {
-		launch_res = launch(server_socket, server_addr);
-		if (launch_res == ERROR_ACCEPT) {
-			std::cerr << "Error on accept" << std::endl;
-			return ERROR_ACCEPT;
-		}
+	std::cout << "server wait for connections..." << std::endl;
+
+	if ((status = launch_server(sockfd)) != NORMAL) {
+		close(sockfd);
+		return status;
 	}
 
-	close(server_socket);
+	close(sockfd);
+
 	return 0;
 }
