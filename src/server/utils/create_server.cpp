@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include "utils.h"
-#include "../globals/consts.h"
+#include "../../globals/consts.h"
 
 void sigchld_handler(int s) {
 	int saved_errno = errno;

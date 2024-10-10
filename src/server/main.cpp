@@ -5,7 +5,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include "globals/consts.h"
+#include "../globals/consts.h"
 #include "utils/utils.h"
 
 int main() {
