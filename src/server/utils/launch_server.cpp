@@ -3,13 +3,14 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <string>
 #include <sys/socket.h>
 #include <unistd.h>
 #include "utils.h"
 #include "../../globals/consts.h"
 
 struct NetworkPacketStruct {
-	uint8_t length;
+	unsigned short length;
 	char command;
 	char data[BUFFER_SIZE];
 };
@@ -22,23 +23,50 @@ void *get_in_addr(struct sockaddr *sa) {
 
 int execute_cmd(char cmd[]) {
 	std::string res = std::string(PATH_TO_APP) + " \"" + cmd + "\"";
+	std::cout << cmd << std::endl;
 	if (system(res.c_str()) != 0)
 		return WRONG_COMMAND;
 	return NORMAL;
 }
 
-NetworkPacketStruct get_packet(int fd, char* buffer, int buffer_size = BUFFER_SIZE) {
+char hex_to_char(char hex1, char hex2) {
+	hex1 = std::toupper(hex1);
+	hex2 = std::toupper(hex2);
+
+	std::cout << hex1 << hex2 << " -> ";
+
+	int value1 = (hex1 >= '0' && hex1 <= '9') ? (hex1 - '0') : (hex1 - 'A' + 10);
+	int value2 = (hex2 >= '0' && hex2 <= '9') ? (hex2 - '0') : (hex2 - 'A' + 10);
+	char result = static_cast<char>((value1 << 4) | value2);
+
+	std::cout << result << std::endl;
+
+	return result;
+}
+
+unsigned short hex_to_short(char hex1, char hex2) {
+	std::string hex_string = std::string(1, hex1) + std::string(1, hex2);
+	unsigned long ul = std::strtoul(hex_string.c_str(), nullptr, 16);
+	return static_cast<unsigned short>(ul);
+}
+
+NetworkPacketStruct parce_packet(char* buffer, int buffer_size = BUFFER_SIZE) {
 	NetworkPacketStruct packet;
+	int index = 0;
 
 	memset(packet.data, 0, buffer_size);
-	recv(fd, buffer, buffer_size, 0);
 
-	// packet.length = static_cast<unsigned short>(buffer[0]);
-	packet.length = buffer_size;
-	packet.command = buffer[0];
-	for (unsigned short i = 0; i < packet.length; i++) {
-		packet.data[i] += (&buffer[1])[i];
+	packet.length = hex_to_short(buffer[0], buffer[1]);
+	std::cout << "buffer -> " << buffer << std::endl;
+	packet.command = hex_to_char(buffer[2], buffer[3]);
+	for (unsigned short i = 0; i < (packet.length * 2) - 2; i = i + 2) {
+		packet.data[index] += hex_to_char((&buffer[4])[i], (&buffer[4])[i+1]);
+		index++;
 	}
+
+	std::cout << "length -> " << packet.length << std::endl;
+	std::cout << "command -> " << packet.command << std::endl;
+	std::cout << "data -> " << packet.data << std::endl;
 
 	return packet;
 }
@@ -62,7 +90,8 @@ int start_chating(int& new_fd, int buffer_size, const char* msg_on_con) {
 
 	while (true) {
 		memset(buffer, 0, buffer_size);
-		packet = get_packet(new_fd, buffer);
+		recv(new_fd, buffer, buffer_size, 0);
+		packet = parce_packet(buffer);
 		status = handle_command(packet);
 
 		if (status == EXIT) {
