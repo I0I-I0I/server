@@ -6,14 +6,15 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "../globals/consts.h"
-#include "utils/utils.h"
+#include "../utils/addr/addr.h"
+#include "./server/server.h"
 
 int main() {
 	struct addrinfo *servinfo;
 	int sockfd, status;
 
 	servinfo = get_addr(PORT);
-	if ((status = create_server(sockfd, servinfo, BACKLOG)) != 0) {
+	if ((status = create_server(sockfd, servinfo, BACKLOG)) != NORMAL) {
 		close(sockfd);
 		return status;
 	}

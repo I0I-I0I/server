@@ -1,47 +1,53 @@
 #include <iostream>
 #include <cstring>
-#include <sstream>
+#include <netdb.h>
+#include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include "../utils/addr/addr.h"
+#include "../globals/consts.h"
+#include "../globals/types.h"
+#include "../utils/packet/packet.h"
+#include "../utils/transfer_data/transfer_data.h"
+#include "../utils/command/command.h"
+#include "./connection/connection.h"
 
-int main() {
-	int sock = socket(AF_INET, SOCK_STREAM, 0);
-	if (sock == -1) {
-		std::cerr << "Could not create socket" << std::endl;
-		return 1;
+int main(int argc, char* argv[]) {
+	if (argc < 2) {
+		std::cerr << "You don't pass args!" << std::endl;
+		return ERROR_NO_ARGS;
 	}
 
-	struct sockaddr_in server_addr;
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = htons(64228);
-	inet_pton(AF_INET, "127.0.0.1", &server_addr.sin_addr); // Server IP
+	int status, sockfd;
+	struct addrinfo *servinfo;
+	char buffer[BUFFER_SIZE];
+	NetworkPacketStruct packet;
 
-	if (connect(sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-		std::cerr << "Connect failed" << std::endl;
-		close(sock);
-		return 1;
+	servinfo = get_addr(PORT);
+	if ((status = create_connect(sockfd, servinfo)) != NORMAL) {
+		close(sockfd);
+		return status;
 	}
+	packet = parce_packet(receive_data(sockfd, buffer));
+	handle_command(packet);
 
-	const char* data = "eprint";
-	unsigned short data_length = strlen(data);
+	RequestStruct requests[] = {
+		{ *argv[1], argv[2] },
+		{ 'q', (char *)"" },
+	};
 
-	std::stringstream ss;
-	std::stringstream nu;
-	for(int i = 0; i < data_length; i++)
-		ss << std::hex << (int)data[i];
-	nu << std::hex << data_length;
+	for (RequestStruct request : requests) {
+		if (send_data(
+			sockfd,
+			create_packet(request.command, request.data)
+		) != 0)
+			std::cerr << "[ERRRO] on send data" << std::endl;
+		packet = parce_packet(receive_data(sockfd, buffer));
+		handle_command(packet);
+	}
+	std::cout << packet.data << std::endl;
 
-	std::string length = nu.str();
-	if (length.size() == 1)
-		length = "0" + length;
-	std::string export_data = length + ss.str();
-	std::cout << ss.str() << std::endl;
-	std::cout << export_data << std::endl;
-
-	send(sock, export_data.c_str(), sizeof export_data, 0);
-
-	close(sock);
-
-	return 0;
+	close(sockfd);
+	return NORMAL;
 }

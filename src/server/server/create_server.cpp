@@ -3,7 +3,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#include "utils.h"
+#include "./server.h"
 #include "../../globals/consts.h"
 
 void sigchld_handler(int s) {
