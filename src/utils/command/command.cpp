@@ -13,8 +13,8 @@ int execute_cmd(char cmd[]) {
 }
 
 AnswerStruct handle_command(NetworkPacketStruct packet) {
-	char* msg = new char[256];
-	memset(msg, 0, 256);
+	char* msg = new char[BUFFER_SIZE];
+	memset(msg, 0, BUFFER_SIZE);
 	switch (packet.command) {
 		case 'q':
 			msg = strdup("000 BYE");
@@ -24,7 +24,6 @@ AnswerStruct handle_command(NetworkPacketStruct packet) {
 			std::cout << packet.data << std::endl;
 			return { 'm', msg };
 		case 'e':
-			int res;
 			msg = strdup("201 OK");
 			if (execute_cmd(packet.data) != 0)
 				msg = strdup("422 Wrong command for app");

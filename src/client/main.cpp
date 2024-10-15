@@ -29,8 +29,11 @@ int main(int argc, char* argv[]) {
 		close(sockfd);
 		return status;
 	}
-	packet = parce_packet(receive_data(sockfd, buffer));
-	handle_command(packet);
+	handle_command(
+		parce_packet(
+			receive_data(sockfd, buffer)
+		)
+	);
 
 	RequestStruct requests[] = {
 		{ *argv[1], argv[2] },
@@ -43,7 +46,9 @@ int main(int argc, char* argv[]) {
 			create_packet(request.command, request.data)
 		) != 0)
 			std::cerr << "[ERRRO] on send data" << std::endl;
-		packet = parce_packet(receive_data(sockfd, buffer));
+		packet = parce_packet(
+			receive_data(sockfd, buffer)
+		);
 		handle_command(packet);
 	}
 	std::cout << packet.data << std::endl;

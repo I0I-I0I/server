@@ -4,7 +4,7 @@
 
 // Settings
 constexpr const char* PORT = "64228";
-constexpr const char* PATH_TO_APP = "/mnt/d/code/cpp/Ctodo/build/cli_todo";
+constexpr const char* PATH_TO_APP = "/mnt/d/code/cpp/server/build/cli_todo";
 constexpr const short BACKLOG = 5;
 constexpr const uint16_t BUFFER_SIZE = 255;
 
