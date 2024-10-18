@@ -2,17 +2,18 @@
 #include <iostream>
 #include <sys/socket.h>
 #include "../../globals/types.h"
+#include "../../globals/consts.h"
 #include "../../utils/packet/packet.h"
 #include "./transfer_data.h"
 
 int send_data(int sockfd, NetworkPacketStruct packet) {
-	const char* data = packet_to_hex(packet);
-	if (send(sockfd, data, ((packet.length + BYTES_FOR_CMD + BYTES_FOR_LENGTH) * 2), 0) == -1) {
+	const char* data = packet_to_chars(packet);
+	if (send(sockfd, data, (packet.length + BYTES_FOR_CMD + BYTES_FOR_LENGTH), 0) == -1) {
 		std::cout << "[ERROR] on send data" << std::endl;
 		return ERROR_SEND;
 	}
-	// std::cout << "Packet -> " << packet.length << " : " << packet.command << " : " << packet.data << std::endl;
-	// std::cout << "Hex -> " << data << std::endl;
+	if (DEBUG_MODE)
+		std::cout << "Packet -> " << packet.length << " : " << packet.command << " : " << packet.data << "\n" << std::endl;
 	return NORMAL;
 }
 

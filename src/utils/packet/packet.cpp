@@ -3,7 +3,7 @@
 #include <iostream>
 #include "../../globals/types.h"
 #include "../../globals/consts.h"
-#include "../hex/hex.h"
+#include "../convert/convert.h"
 #include "./packet.h"
 
 NetworkPacketStruct create_packet(char command, char* data) {
@@ -16,26 +16,20 @@ NetworkPacketStruct create_packet(char command, char* data) {
 	return packet;
 }
 
-char* packet_to_hex(NetworkPacketStruct packet) {
-	char* res = new char[BUFFER_SIZE];
-	char data_hex[BUFFER_SIZE - (LENGTH_LEN + CMD_LEN)];
-	char length_hex[LENGTH_LEN + 1];
-	char command_hex[CMD_LEN + 1];
-	length_hex[LENGTH_LEN] = '\0';
-	command_hex[CMD_LEN] = '\0';
+char* packet_to_chars(NetworkPacketStruct packet) {
+	char length_hex[LENGTH_LEN];
+	short_to_chars(packet.length, length_hex);
 
-	short_to_hex(packet.length, length_hex);
-	char_to_hex(packet.command, command_hex);
-	data_to_hex(packet.data, packet.length, data_hex);
+	char* res = new char[BUFFER_SIZE];
 
 	for (int i = 0; i < LENGTH_LEN; i++)
 		res[i] = length_hex[i];
 
 	for (int i = 0; i < CMD_LEN; i++)
-		res[i + LENGTH_LEN] = command_hex[i];
+		res[i + LENGTH_LEN] = packet.command;
 
-	for (int i = 0; i < ((packet.length + BYTES_FOR_CMD + BYTES_FOR_LENGTH) * 2); i++)
-		res[i + CMD_LEN + LENGTH_LEN] = data_hex[i];
+	for (int i = 0; i < packet.length; i++)
+		res[i + CMD_LEN + LENGTH_LEN] = packet.data[i];
 
 	return res;
 }
@@ -49,17 +43,16 @@ NetworkPacketStruct parce_packet(char* buffer, unsigned short buffer_size) {
 
 	memset(packet.data, 0, buffer_size);
 
-	// std::cout << "\nbuffer -> " << buffer << std::endl;
-	packet.length = hex_to_short(buffer[0], buffer[1], buffer[2], buffer[3]);
-	packet.command = hex_to_char(buffer[4], buffer[5]);
-	for (unsigned short i = 0; i < packet.length * 2; i = i + 2) {
-		packet.data[index] += hex_to_char((&buffer[6])[i], (&buffer[6])[i+1]);
-		index++;
-	}
+	packet.length = chars_to_short(buffer[0], buffer[1]);
+	packet.command = buffer[2];
+	for (unsigned short i = 0; i < packet.length; i++)
+		packet.data[i] += (&buffer[3])[i];
 
-	// std::cout << "length -> " << packet.length << std::endl;
-	// std::cout << "command -> " << packet.command << std::endl;
-	// std::cout << "data -> " << packet.data << std::endl;
+	if (DEBUG_MODE) {
+		std::cout << "length -> " << packet.length << std::endl;
+		std::cout << "command -> " << packet.command << std::endl;
+		std::cout << "data -> " << packet.data << std::endl;
+	}
 
 	return packet;
 }

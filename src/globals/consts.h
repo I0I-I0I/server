@@ -8,10 +8,12 @@ constexpr const char* PATH_TO_APP = "/mnt/d/code/cpp/server/build/cli_todo";
 constexpr const short BACKLOG = 5;
 constexpr const uint16_t BUFFER_SIZE = 255;
 
+constexpr const bool DEBUG_MODE = true;
+
 const uint8_t BYTES_FOR_LENGTH = 2;
 const uint8_t BYTES_FOR_CMD = 1;
-const uint8_t LENGTH_LEN = BYTES_FOR_LENGTH * 2;
-const uint8_t CMD_LEN = BYTES_FOR_CMD * 2;
+const uint8_t LENGTH_LEN = BYTES_FOR_LENGTH;
+const uint8_t CMD_LEN = BYTES_FOR_CMD;
 
 // Returned values
 constexpr const int NORMAL = 0;

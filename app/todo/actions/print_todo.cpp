@@ -1,7 +1,10 @@
+#include <cstring>
 #include <iostream>
+#include <vector>
 #include "actions.h"
 #include "../globals/const.h"
 #include "../db/db.h"
+#include "./actions.h"
 
 int print_todo(ActionStruct action) {
 	std::vector<DBData> data = db_get_all(DB_PATH);

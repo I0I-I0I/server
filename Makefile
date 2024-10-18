@@ -14,8 +14,7 @@ server:
 	@g++\
 		src/server/main.cpp\
 		src/utils/addr/get_addr.cpp\
-		src/utils/hex/to_hex.cpp\
-		src/utils/hex/from_hex.cpp\
+		src/utils/convert/convert_short.cpp\
 		src/utils/packet/packet.cpp\
 		src/utils/transfer_data/transfer_data.cpp\
 		src/utils/command/command.cpp\
@@ -29,8 +28,7 @@ client:
 	@g++\
 		src/utils/addr/get_addr.cpp\
 		src/utils/packet/packet.cpp\
-		src/utils/hex/to_hex.cpp\
-		src/utils/hex/from_hex.cpp\
+		src/utils/convert/convert_short.cpp\
 		src/utils/transfer_data/transfer_data.cpp\
 		src/utils/command/command.cpp\
 		src/client/connection/create_connection.cpp\
@@ -40,24 +38,24 @@ client:
 todo: 
 	@echo "Compiling todo..."
 	@g++\
-		src/todo/main.cpp\
-		src/todo/actions/handle_action.cpp\
-		src/todo/actions/add_todo.cpp\
-		src/todo/actions/remove_todo.cpp\
-		src/todo/actions/check_todo.cpp\
-		src/todo/actions/print_todo.cpp\
-		src/todo/commands/help.cpp\
-		src/todo/commands/quit.cpp\
-		src/todo/utils/trim.cpp\
-		src/todo/utils/get_args.cpp\
-		src/todo/utils/get_action.cpp\
-		src/todo/utils/handle_prompt.cpp\
-		src/todo/db/db_exec.cpp\
-		src/todo/db/db_create.cpp\
-		src/todo/db/db_add.cpp\
-		src/todo/db/db_get.cpp\
-		src/todo/db/db_remove_by_index.cpp\
-		src/todo/db/db_check_todo.cpp\
+		app/todo/main.cpp\
+		app/todo/actions/handle_action.cpp\
+		app/todo/actions/add_todo.cpp\
+		app/todo/actions/remove_todo.cpp\
+		app/todo/actions/check_todo.cpp\
+		app/todo/actions/print_todo.cpp\
+		app/todo/commands/help.cpp\
+		app/todo/commands/quit.cpp\
+		app/todo/utils/trim.cpp\
+		app/todo/utils/get_args.cpp\
+		app/todo/utils/get_action.cpp\
+		app/todo/utils/handle_prompt.cpp\
+		app/todo/db/db_exec.cpp\
+		app/todo/db/db_create.cpp\
+		app/todo/db/db_add.cpp\
+		app/todo/db/db_get.cpp\
+		app/todo/db/db_remove_by_index.cpp\
+		app/todo/db/db_check_todo.cpp\
 		-lsqlite3 -o build/cli_todo
 
 clean:

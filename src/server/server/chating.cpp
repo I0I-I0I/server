@@ -1,6 +1,7 @@
 #include <cstring>
 #include <iostream>
 #include <sys/socket.h>
+#include <unistd.h>
 #include "../../globals/consts.h"
 #include "../../globals/types.h"
 #include "../../utils/packet/packet.h"
@@ -31,7 +32,7 @@ int start_chating(int& new_fd, int buffer_size) {
 	}
 	while (answer.command != 'q');
 
-	std::cout << "server: connection closed" << std::endl;
+	std::cout << "server: connection closed\n" << std::endl;
 
 	return NORMAL;
 }
