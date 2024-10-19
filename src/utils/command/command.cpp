@@ -25,10 +25,9 @@ int execute_cmd_and_get_data(char* cmd, char* out_buffer) {
 		return 1;
 	}
 
-	while (fgets(buffer, bufferSize, pipe) != nullptr) {
-		buffer[strcspn(buffer, "\n")] = ' ';
+	while (fgets(buffer, bufferSize, pipe) != nullptr)
 		result += buffer;
-	}
+
 	pclose(pipe);
 
 	std::strcpy(out_buffer, result.c_str());
@@ -37,26 +36,29 @@ int execute_cmd_and_get_data(char* cmd, char* out_buffer) {
 
 AnswerStruct handle_command(NetworkPacketStruct packet) {
 	char* msg = new char[BUFFER_SIZE];
+	char type = 'm';
 	memset(msg, 0, BUFFER_SIZE);
 	switch (packet.command) {
 		case 'q':
+			type = 'q';
 			msg = strdup("000 BYE");
-			return { 'q', msg };
+			break;
 		case 'm':
 			msg = strdup("201 OK");
 			std::cout << packet.data << std::endl;
-			return { 'm', msg };
+			break;
 		case 'e':
 			msg = strdup("201 OK");
 			if (execute_cmd(packet.data) != NORMAL)
 				msg = strdup("422 Wrong command for app");
-			return { 'm', msg };
+			break;
 		case 'g':
 			if (execute_cmd_and_get_data(packet.data, msg) != NORMAL)
 				msg = strdup("501 Cannot get data from DB");
-			return { 'm', msg };
+			break;
+		default:
+			msg = strdup("421 Wrong command");
 	}
-	msg = strdup("421 Wrong command");
-	return { WRONG_COMMAND, msg };
+	return { type, msg };
 }
 
