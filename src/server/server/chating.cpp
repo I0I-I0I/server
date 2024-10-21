@@ -26,11 +26,11 @@ int start_chating(int& new_fd, int buffer_size) {
 		answer = handle_command(packet);
 		if (send_data(
 			new_fd,
-			create_packet(answer.command, answer.msg)
+			create_packet(answer.type, answer.msg)
 		) == -1)
 			std::cerr << "[ERROR] on send" << std::endl;
 	}
-	while (answer.command != 'q');
+	while (answer.type != 'q');
 
 	std::cout << "server: connection closed\n" << std::endl;
 

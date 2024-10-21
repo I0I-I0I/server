@@ -13,7 +13,7 @@ int send_data(int sockfd, NetworkPacketStruct packet) {
 		return ERROR_SEND;
 	}
 	if (DEBUG_MODE)
-		std::cout << "Packet -> " << packet.length << " : " << packet.command << " : " << packet.data << "\n" << std::endl;
+		std::cout << "Packet -> " << packet.length << " : " << packet.type << " : " << packet.data << "\n" << std::endl;
 	return NORMAL;
 }
 

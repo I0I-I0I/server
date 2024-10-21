@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
 	for (RequestStruct request : requests) {
 		if (send_data(
 			sockfd,
-			create_packet(request.command, request.data)
+			create_packet(request.type, request.data)
 		) != 0)
 			std::cerr << "[ERRRO] on send data" << std::endl;
 		packet = parce_packet(

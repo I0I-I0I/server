@@ -5,16 +5,16 @@
 
 struct NetworkPacketStruct {
 	uint16_t length;
-	char command;
+	char type;
 	char data[BUFFER_SIZE];
 };
 
 struct AnswerStruct {
-	char command;
+	char type;
 	char* msg;
 };
 
 struct RequestStruct {
-	char command;
+	char type;
 	char* data;
 };
